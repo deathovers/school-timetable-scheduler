@@ -1,0 +1,10 @@
+teacher_id,teacher_name,max_hours_per_day,unavailable_times,department
+"T_AMIT_SHARMA","Mr. Amit Sharma",5,"Fri:8","Mathematics"
+"T_RAJESH_KUMAR","Mr. Rajesh Kumar",5,"Wed:5, Wed:6","Science"
+"T_PRIYA_SINGH","Ms. Priya Singh",4,"Tue:1","Hindi"
+"T_ANJALI_GUPTA","Ms. Anjali Gupta",5,"Mon:1","English"
+"T_SURESH_VERMA","Mr. Suresh Verma",5,"Thu:1","Social Science"
+"T_POOJA_MEHTA","Ms. Pooja Mehta",4,"Fri:7, Fri:8","Information Technology"
+"T_VIKRAM_YADAV","Mr. Vikram Yadav",3,"Mon:8","Physical Education"
+"T_KAVITA_JOSHI","Mrs. Kavita Joshi",3,"","Art Education"
+"T_SANDEEP_PATEL","Mr. Sandeep Patel",3,"","Library & Reading"

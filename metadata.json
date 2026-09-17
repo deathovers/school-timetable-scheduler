@@ -1,0 +1,6 @@
+{
+  "name": "School Timetable Scheduler",
+  "description": "Comprehensive School Timetable Management System with interactive weekly class schedules, teacher loads, editable bell timings, and Excel export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

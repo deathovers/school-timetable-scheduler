@@ -1,0 +1,121 @@
+day,period,group_id,group_name,course_id,course_name,teacher_id,teacher_name,room_id,is_lab
+Mon,1,"G10-A","Grade 10 - Section A","SCI10_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Mon,1,"G9-A","Grade 9 - Section A","MATH09_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-101",false
+Mon,1,"G9-B","Grade 9 - Section B","SOC09_B","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-102",false
+Mon,2,"G10-A","Grade 10 - Section A","SOC10_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-201",false
+Mon,2,"G9-A","Grade 9 - Section A","ENG09_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-101",false
+Mon,2,"G9-B","Grade 9 - Section B","MATH09_B","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-102",false
+Mon,3,"G10-A","Grade 10 - Section A","MATH10_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-201",false
+Mon,3,"G9-A","Grade 9 - Section A","SCI09_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Mon,3,"G9-B","Grade 9 - Section B","ENG09_B","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-102",false
+Mon,4,"G10-A","Grade 10 - Section A","ENG10_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-201",false
+Mon,4,"G9-A","Grade 9 - Section A","SOC09_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-101",false
+Mon,4,"G9-B","Grade 9 - Section B","SCI09_B","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Mon,5,"G10-A","Grade 10 - Section A","BIO10_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-201",false
+Mon,5,"G9-A","Grade 9 - Section A","MATH09_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-101",false
+Mon,5,"G9-B","Grade 9 - Section B","SOC09_B","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-102",false
+Mon,6,"G10-A","Grade 10 - Section A","SOC10_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-201",false
+Mon,6,"G9-A","Grade 9 - Section A","SCI09_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Mon,6,"G9-B","Grade 9 - Section B","MATH09_B","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-102",false
+Mon,7,"G10-A","Grade 10 - Section A","MATH10_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-201",false
+Mon,7,"G9-A","Grade 9 - Section A","SOC09_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-101",false
+Mon,7,"G9-B","Grade 9 - Section B","ENG09_B","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-102",false
+Mon,8,"G10-A","Grade 10 - Section A","SCI10_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Mon,8,"G9-A","Grade 9 - Section A","ENG09_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-101",false
+Mon,8,"G9-B","Grade 9 - Section B","BIO09_B","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-102",false
+Tue,1,"G10-A","Grade 10 - Section A","ENG10_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-201",false
+Tue,1,"G9-A","Grade 9 - Section A","MATH09_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-101",false
+Tue,1,"G9-B","Grade 9 - Section B","SCI09_B","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Tue,2,"G10-A","Grade 10 - Section A","SCI10_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Tue,2,"G9-A","Grade 9 - Section A","BIO09_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-101",false
+Tue,2,"G9-B","Grade 9 - Section B","MATH09_B","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-102",false
+Tue,3,"G10-A","Grade 10 - Section A","MATH10_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-201",false
+Tue,3,"G9-A","Grade 9 - Section A","BIO09_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-101",false
+Tue,3,"G9-B","Grade 9 - Section B","SCI09_B","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Tue,4,"G10-A","Grade 10 - Section A","CS10_A","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Tue,4,"G9-A","Grade 9 - Section A","SOC09_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-101",false
+Tue,4,"G9-B","Grade 9 - Section B","BIO09_B","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-102",false
+Tue,5,"G10-A","Grade 10 - Section A","BIO10_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-201",false
+Tue,5,"G9-A","Grade 9 - Section A","SCI09_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Tue,5,"G9-B","Grade 9 - Section B","MATH09_B","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-102",false
+Tue,6,"G10-A","Grade 10 - Section A","MATH10_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-201",false
+Tue,6,"G9-A","Grade 9 - Section A","ENG09_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-101",false
+Tue,6,"G9-B","Grade 9 - Section B","CS09_B","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Tue,7,"G10-A","Grade 10 - Section A","SOC10_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-201",false
+Tue,7,"G9-A","Grade 9 - Section A","CS09_A","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Tue,7,"G9-B","Grade 9 - Section B","ENG09_B","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-102",false
+Tue,8,"G10-A","Grade 10 - Section A","ENG10_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-201",false
+Tue,8,"G9-A","Grade 9 - Section A","MATH09_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-101",false
+Tue,8,"G9-B","Grade 9 - Section B","SOC09_B","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-102",false
+Wed,1,"G10-A","Grade 10 - Section A","BIO10_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-201",false
+Wed,1,"G9-A","Grade 9 - Section A","MATH09_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-101",false
+Wed,1,"G9-B","Grade 9 - Section B","SCI09_B","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Wed,2,"G10-A","Grade 10 - Section A","SOC10_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-201",false
+Wed,2,"G9-A","Grade 9 - Section A","CS09_A","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Wed,2,"G9-B","Grade 9 - Section B","ENG09_B","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-102",false
+Wed,3,"G10-A","Grade 10 - Section A","ENG10_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-201",false
+Wed,3,"G9-A","Grade 9 - Section A","SCI09_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Wed,3,"G9-B","Grade 9 - Section B","CS09_B","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Wed,4,"G10-A","Grade 10 - Section A","CS10_A","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Wed,4,"G9-A","Grade 9 - Section A","SOC09_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-101",false
+Wed,4,"G9-B","Grade 9 - Section B","MATH09_B","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-102",false
+Wed,5,"G10-A","Grade 10 - Section A","MATH10_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-201",false
+Wed,5,"G9-A","Grade 9 - Section A","ENG09_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-101",false
+Wed,5,"G9-B","Grade 9 - Section B","BIO09_B","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-102",false
+Wed,6,"G10-A","Grade 10 - Section A","ENG10_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-201",false
+Wed,6,"G9-A","Grade 9 - Section A","BIO09_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-101",false
+Wed,6,"G9-B","Grade 9 - Section B","SOC09_B","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-102",false
+Wed,7,"G10-A","Grade 10 - Section A","SCI10_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Wed,7,"G9-A","Grade 9 - Section A","SOC09_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-101",false
+Wed,7,"G9-B","Grade 9 - Section B","PE09_B","Physical Education","T_VIKRAM_YADAV","Mr. Vikram Yadav","GYM-FIELD",false
+Wed,8,"G10-A","Grade 10 - Section A","BIO10_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-201",false
+Wed,8,"G9-A","Grade 9 - Section A","PE09_A","Physical Education","T_VIKRAM_YADAV","Mr. Vikram Yadav","GYM-FIELD",false
+Wed,8,"G9-B","Grade 9 - Section B","ART09_B","Art Education","T_KAVITA_JOSHI","Mrs. Kavita Joshi","ART-STUDIO",false
+Thu,1,"G10-A","Grade 10 - Section A","LIB10_A","Library & Reading","T_SANDEEP_PATEL","Mr. Sandeep Patel","LIBRARY",false
+Thu,1,"G9-A","Grade 9 - Section A","SCI09_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Thu,1,"G9-B","Grade 9 - Section B","CS09_B","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Thu,2,"G10-A","Grade 10 - Section A","PE10_A","Physical Education","T_VIKRAM_YADAV","Mr. Vikram Yadav","GYM-FIELD",false
+Thu,2,"G9-A","Grade 9 - Section A","ART09_A","Art Education","T_KAVITA_JOSHI","Mrs. Kavita Joshi","ART-STUDIO",false
+Thu,2,"G9-B","Grade 9 - Section B","ENG09_B","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-102",false
+Thu,3,"G10-A","Grade 10 - Section A","MATH10_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-201",false
+Thu,3,"G9-A","Grade 9 - Section A","BIO09_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-101",false
+Thu,3,"G9-B","Grade 9 - Section B","LIB09_B","Library & Reading","T_SANDEEP_PATEL","Mr. Sandeep Patel","LIBRARY",false
+Thu,4,"G10-A","Grade 10 - Section A","SOC10_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-201",false
+Thu,4,"G9-A","Grade 9 - Section A","ENG09_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-101",false
+Thu,4,"G9-B","Grade 9 - Section B","SCI09_B","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Thu,5,"G10-A","Grade 10 - Section A","SCI10_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Thu,5,"G9-A","Grade 9 - Section A","CS09_A","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Thu,5,"G9-B","Grade 9 - Section B","MATH09_B","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-102",false
+Thu,6,"G10-A","Grade 10 - Section A","CS10_A","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Thu,6,"G9-A","Grade 9 - Section A","LIB09_A","Library & Reading","T_SANDEEP_PATEL","Mr. Sandeep Patel","LIBRARY",false
+Thu,6,"G9-B","Grade 9 - Section B","BIO09_B","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-102",false
+Thu,7,"G10-A","Grade 10 - Section A","ART10_A","Art Education","T_KAVITA_JOSHI","Mrs. Kavita Joshi","ART-STUDIO",false
+Thu,7,"G9-A","Grade 9 - Section A","MATH09_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-101",false
+Thu,7,"G9-B","Grade 9 - Section B","SOC09_B","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-102",false
+Thu,8,"G10-A","Grade 10 - Section A","MATH10_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-201",false
+Thu,8,"G9-A","Grade 9 - Section A","ENG09_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-101",false
+Thu,8,"G9-B","Grade 9 - Section B","CS09_B","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Fri,1,"G10-A","Grade 10 - Section A","ENG10_A","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-201",false
+Fri,1,"G9-A","Grade 9 - Section A","CS09_A","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Fri,1,"G9-B","Grade 9 - Section B","PE09_B","Physical Education","T_VIKRAM_YADAV","Mr. Vikram Yadav","GYM-FIELD",false
+Fri,2,"G10-A","Grade 10 - Section A","CS10_A","Information Technology","T_POOJA_MEHTA","Ms. Pooja Mehta","COMP-LAB",true
+Fri,2,"G9-A","Grade 9 - Section A","MATH09_A","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-101",false
+Fri,2,"G9-B","Grade 9 - Section B","SOC09_B","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-102",false
+Fri,3,"G10-A","Grade 10 - Section A","BIO10_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-201",false
+Fri,3,"G9-A","Grade 9 - Section A","ART09_A","Art Education","T_KAVITA_JOSHI","Mrs. Kavita Joshi","ART-STUDIO",false
+Fri,3,"G9-B","Grade 9 - Section B","MATH09_B","Mathematics","T_AMIT_SHARMA","Mr. Amit Sharma","RM-102",false
+Fri,4,"G10-A","Grade 10 - Section A","ART10_A","Art Education","T_KAVITA_JOSHI","Mrs. Kavita Joshi","ART-STUDIO",false
+Fri,4,"G9-A","Grade 9 - Section A","BIO09_A","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-101",false
+Fri,4,"G9-B","Grade 9 - Section B","SCI09_B","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Fri,5,"G10-A","Grade 10 - Section A","SCI10_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Fri,5,"G9-A","Grade 9 - Section A","PE09_A","Physical Education","T_VIKRAM_YADAV","Mr. Vikram Yadav","GYM-FIELD",false
+Fri,5,"G9-B","Grade 9 - Section B","BIO09_B","Hindi Course A","T_PRIYA_SINGH","Ms. Priya Singh","RM-102",false
+Fri,6,"G10-A","Grade 10 - Section A","SOC10_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-201",false
+Fri,6,"G9-A","Grade 9 - Section A","LIB09_A","Library & Reading","T_SANDEEP_PATEL","Mr. Sandeep Patel","LIBRARY",false
+Fri,6,"G9-B","Grade 9 - Section B","ART09_B","Art Education","T_KAVITA_JOSHI","Mrs. Kavita Joshi","ART-STUDIO",false
+Fri,7,"G10-A","Grade 10 - Section A","LIB10_A","Library & Reading","T_SANDEEP_PATEL","Mr. Sandeep Patel","LIBRARY",false
+Fri,7,"G9-A","Grade 9 - Section A","SOC09_A","Social Science","T_SURESH_VERMA","Mr. Suresh Verma","RM-101",false
+Fri,7,"G9-B","Grade 9 - Section B","ENG09_B","English Language & Literature","T_ANJALI_GUPTA","Ms. Anjali Gupta","RM-102",false
+Fri,8,"G10-A","Grade 10 - Section A","PE10_A","Physical Education","T_VIKRAM_YADAV","Mr. Vikram Yadav","GYM-FIELD",false
+Fri,8,"G9-A","Grade 9 - Section A","SCI09_A","Science","T_RAJESH_KUMAR","Mr. Rajesh Kumar","SCI-LAB",true
+Fri,8,"G9-B","Grade 9 - Section B","LIB09_B","Library & Reading","T_SANDEEP_PATEL","Mr. Sandeep Patel","LIBRARY",false

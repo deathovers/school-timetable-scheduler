@@ -1,0 +1,9 @@
+room_id,room_capacity,is_lab,room_name
+"RM-101",35,false,"Class 9-A Homeroom"
+"RM-102",35,false,"Class 9-B Homeroom"
+"RM-201",35,false,"Class 10-A Homeroom"
+"SCI-LAB",36,true,"Composite Science & Physics Lab"
+"COMP-LAB",32,true,"Computer & Robotics Lab"
+"ART-STUDIO",32,false,"Visual Arts Workshop"
+"GYM-FIELD",65,false,"Sports Complex & Field"
+"LIBRARY",45,false,"Central School Library"

@@ -1,0 +1,4 @@
+group_id,group_name,student_count,enrolled_courses
+"G9-A","Grade 9 - Section A",32,"MATH09_A, SCI09_A, BIO09_A, ENG09_A, SOC09_A, CS09_A, PE09_A, ART09_A, LIB09_A"
+"G9-B","Grade 9 - Section B",30,"MATH09_B, SCI09_B, BIO09_B, ENG09_B, SOC09_B, CS09_B, PE09_B, ART09_B, LIB09_B"
+"G10-A","Grade 10 - Section A",28,"MATH10_A, SCI10_A, BIO10_A, ENG10_A, SOC10_A, CS10_A, PE10_A, ART10_A, LIB10_A"
