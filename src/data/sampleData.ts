@@ -6,6 +6,9 @@ export const SCHOOL_INFO = {
   term: "Term 1 (Fall Semester)",
   principal: "Dr. Arthur Pendelton, Ph.D.",
   coordinator: "Ms. Margaret Thatcher, M.Ed.",
+  address: "",
+  phone: "",
+  email: "",
   bellTimings: "08:00 AM – 02:45 PM (Monday – Friday)",
 };
 

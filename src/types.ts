@@ -8,6 +8,19 @@ export interface Course {
   color_code?: string;
 }
 
+export interface SchoolInfo {
+  name: string;
+  academicYear: string;
+  term: string;
+  principal: string;
+  coordinator: string;
+  address: string;
+  phone: string;
+  email: string;
+  bellTimings?: string;
+  session?: string;
+}
+
 export interface Teacher {
   teacher_id: string;
   teacher_name: string;

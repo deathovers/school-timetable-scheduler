@@ -24,14 +24,24 @@ from .schemas import (
     AssignmentSchema,
     BellItemSchema,
     BellScheduleUpdate,
+    CourseBulkCreate,
+    CourseCreate,
     CourseSchema,
+    CourseUpdate,
     CurriculumResponse,
+    RoomCreate,
     RoomSchema,
+    RoomUpdate,
     SchoolSchema,
+    SchoolUpdate,
     SolveRequest,
     SolveResponse,
+    StudentGroupCreate,
     StudentGroupSchema,
+    StudentGroupUpdate,
+    TeacherCreate,
     TeacherSchema,
+    TeacherUpdate,
     TimeSlotSchema,
 )
 from .seed import SEED_BELL_PERIODS, init_and_seed_db
@@ -110,6 +120,40 @@ def get_school(db: Session = Depends(get_db)):
         name=school.name,
         academic_year=school.academic_year,
         term=school.term,
+        principal_name=school.principal_name or "",
+        coordinator_name=school.coordinator_name or "",
+        address=school.address or "",
+        phone=school.phone or "",
+        email=school.email or "",
+    )
+
+
+@app.put("/api/school", response_model=SchoolSchema)
+def update_school(payload: SchoolUpdate, db: Session = Depends(get_db)):
+    school = db.query(School).first()
+    if not school:
+        school = School()
+        db.add(school)
+
+    school.name = payload.name.strip()
+    school.academic_year = payload.academic_year.strip()
+    school.term = payload.term.strip()
+    school.principal_name = payload.principal_name.strip()
+    school.coordinator_name = payload.coordinator_name.strip()
+    school.address = payload.address.strip()
+    school.phone = payload.phone.strip()
+    school.email = payload.email.strip()
+    db.commit()
+    db.refresh(school)
+    return SchoolSchema(
+        name=school.name,
+        academic_year=school.academic_year,
+        term=school.term,
+        principal_name=school.principal_name or "",
+        coordinator_name=school.coordinator_name or "",
+        address=school.address or "",
+        phone=school.phone or "",
+        email=school.email or "",
     )
 
 
@@ -120,7 +164,16 @@ def get_school(db: Session = Depends(get_db)):
 def get_curriculum(db: Session = Depends(get_db)):
     school = db.query(School).first()
     school_data = (
-        SchoolSchema(name=school.name, academic_year=school.academic_year, term=school.term)
+        SchoolSchema(
+            name=school.name,
+            academic_year=school.academic_year,
+            term=school.term,
+            principal_name=school.principal_name or "",
+            coordinator_name=school.coordinator_name or "",
+            address=school.address or "",
+            phone=school.phone or "",
+            email=school.email or "",
+        )
         if school
         else SchoolSchema()
     )
@@ -145,6 +198,7 @@ def get_curriculum(db: Session = Depends(get_db)):
             max_hours_per_day=t.max_hours_per_day,
             unavailable_times=t.unavailable_times or "",
             department=t.department,
+            homeroom_class=t.homeroom_class,
             email=t.email,
         )
         for t in db.query(Teacher).all()
@@ -168,6 +222,8 @@ def get_curriculum(db: Session = Depends(get_db)):
             student_count=g.student_count,
             enrolled_courses=[c.strip() for c in g.enrolled_courses.split(",") if c.strip()],
             grade_level=g.grade_level,
+            homeroom_teacher=g.homeroom_teacher,
+            homeroom_room_id=g.homeroom_room_id,
         )
         for g in db.query(StudentGroup).all()
     ]
@@ -187,6 +243,328 @@ def get_curriculum(db: Session = Depends(get_db)):
         groups=groups,
         timeSlots=time_slots,
     )
+
+
+# -----------------------------------------------------------------------------
+# 3a. Courses CRUD
+# -----------------------------------------------------------------------------
+@app.post("/api/courses", response_model=CourseSchema, status_code=status.HTTP_201_CREATED)
+def create_course(payload: CourseCreate, db: Session = Depends(get_db)):
+    if db.query(Course).filter(Course.course_id == payload.course_id).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Course with ID '{payload.course_id}' already exists."
+        )
+    teacher = db.query(Teacher).filter(Teacher.teacher_id == payload.teacher_id).first()
+    if not teacher:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Assigned Teacher '{payload.teacher_id}' does not exist."
+        )
+    course = Course(
+        course_id=payload.course_id,
+        course_name=payload.course_name,
+        weekly_periods=payload.weekly_periods,
+        teacher_id=payload.teacher_id,
+        lab_required=payload.lab_required,
+        department=payload.department or "General",
+        color_code=payload.color_code,
+    )
+    db.add(course)
+    db.commit()
+    db.refresh(course)
+    return course
+
+
+@app.post("/api/courses/bulk", response_model=List[CourseSchema], status_code=status.HTTP_201_CREATED)
+def create_courses_bulk(payload: CourseBulkCreate, db: Session = Depends(get_db)):
+    """Create a complete course batch, validating it before anything is saved."""
+    course_ids = [course.course_id.strip().upper() for course in payload.courses]
+    if any(not course_id for course_id in course_ids):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Every subject needs a course ID.")
+    if len(set(course_ids)) != len(course_ids):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Each subject in the batch needs a unique course ID.")
+
+    existing_ids = {
+        course_id.upper()
+        for (course_id,) in db.query(Course.course_id).all()
+    }
+    duplicate_ids = sorted(existing_ids.intersection(course_ids))
+    if duplicate_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Course ID '{duplicate_ids[0]}' already exists.",
+        )
+
+    teacher_ids = {course.teacher_id for course in payload.courses}
+    valid_teacher_ids = {
+        teacher_id for (teacher_id,) in db.query(Teacher.teacher_id).filter(Teacher.teacher_id.in_(teacher_ids)).all()
+    }
+    unknown_teacher_ids = sorted(teacher_ids - valid_teacher_ids)
+    if unknown_teacher_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Assigned Teacher '{unknown_teacher_ids[0]}' does not exist.",
+        )
+
+    courses = [
+        Course(
+            course_id=course_id,
+            course_name=payload_course.course_name.strip(),
+            weekly_periods=payload_course.weekly_periods,
+            teacher_id=payload_course.teacher_id,
+            lab_required=payload_course.lab_required,
+            department=payload_course.department or "General",
+            color_code=payload_course.color_code,
+        )
+        for payload_course, course_id in zip(payload.courses, course_ids)
+    ]
+    try:
+        db.add_all(courses)
+        db.commit()
+        for course in courses:
+            db.refresh(course)
+    except Exception:
+        db.rollback()
+        logger.exception("Could not create course batch")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create subject batch.")
+    return courses
+
+
+@app.put("/api/courses/{course_id}", response_model=CourseSchema)
+def update_course(course_id: str, payload: CourseUpdate, db: Session = Depends(get_db)):
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Course '{course_id}' not found."
+        )
+    teacher = db.query(Teacher).filter(Teacher.teacher_id == payload.teacher_id).first()
+    if not teacher:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Assigned Teacher '{payload.teacher_id}' does not exist."
+        )
+    course.course_name = payload.course_name
+    course.weekly_periods = payload.weekly_periods
+    course.teacher_id = payload.teacher_id
+    course.lab_required = payload.lab_required
+    course.department = payload.department or "General"
+    course.color_code = payload.color_code
+    db.commit()
+    db.refresh(course)
+    return course
+
+
+@app.delete("/api/courses/{course_id}")
+def delete_course(course_id: str, db: Session = Depends(get_db)):
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Course '{course_id}' not found."
+        )
+    # Remove from any group's enrolled_courses string
+    groups = db.query(StudentGroup).all()
+    for g in groups:
+        if g.enrolled_courses:
+            c_list = [c.strip() for c in g.enrolled_courses.split(",") if c.strip() and c.strip() != course_id]
+            g.enrolled_courses = ", ".join(c_list)
+    # Delete associated timetable assignments
+    db.query(Assignment).filter(Assignment.course_id == course_id).delete()
+    db.delete(course)
+    db.commit()
+    return {"success": True, "message": f"Course '{course_id}' deleted successfully."}
+
+
+# -----------------------------------------------------------------------------
+# 3b. Teachers CRUD
+# -----------------------------------------------------------------------------
+@app.post("/api/teachers", response_model=TeacherSchema, status_code=status.HTTP_201_CREATED)
+def create_teacher(payload: TeacherCreate, db: Session = Depends(get_db)):
+    if db.query(Teacher).filter(Teacher.teacher_id == payload.teacher_id).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Teacher with ID '{payload.teacher_id}' already exists."
+        )
+    teacher = Teacher(
+        teacher_id=payload.teacher_id,
+        teacher_name=payload.teacher_name,
+        max_hours_per_day=payload.max_hours_per_day,
+        unavailable_times=payload.unavailable_times or "",
+        department=payload.department or "General",
+        homeroom_class=payload.homeroom_class,
+        email=payload.email,
+    )
+    db.add(teacher)
+    db.commit()
+    db.refresh(teacher)
+    return teacher
+
+
+@app.put("/api/teachers/{teacher_id}", response_model=TeacherSchema)
+def update_teacher(teacher_id: str, payload: TeacherUpdate, db: Session = Depends(get_db)):
+    teacher = db.query(Teacher).filter(Teacher.teacher_id == teacher_id).first()
+    if not teacher:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Teacher '{teacher_id}' not found."
+        )
+    teacher.teacher_name = payload.teacher_name
+    teacher.max_hours_per_day = payload.max_hours_per_day
+    teacher.unavailable_times = payload.unavailable_times or ""
+    teacher.department = payload.department or "General"
+    teacher.homeroom_class = payload.homeroom_class
+    teacher.email = payload.email
+    db.commit()
+    db.refresh(teacher)
+    return teacher
+
+
+@app.delete("/api/teachers/{teacher_id}")
+def delete_teacher(teacher_id: str, db: Session = Depends(get_db)):
+    teacher = db.query(Teacher).filter(Teacher.teacher_id == teacher_id).first()
+    if not teacher:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Teacher '{teacher_id}' not found."
+        )
+    # Delete associated assignments
+    db.query(Assignment).filter(Assignment.teacher_id == teacher_id).delete()
+    # Delete teacher (and cascading courses)
+    db.delete(teacher)
+    db.commit()
+    return {"success": True, "message": f"Teacher '{teacher_id}' and associated courses deleted successfully."}
+
+
+# -----------------------------------------------------------------------------
+# 3c. Rooms CRUD
+# -----------------------------------------------------------------------------
+@app.post("/api/rooms", response_model=RoomSchema, status_code=status.HTTP_201_CREATED)
+def create_room(payload: RoomCreate, db: Session = Depends(get_db)):
+    if db.query(Room).filter(Room.room_id == payload.room_id).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Room with ID '{payload.room_id}' already exists."
+        )
+    room = Room(
+        room_id=payload.room_id,
+        room_name=payload.room_name or payload.room_id,
+        room_capacity=payload.room_capacity,
+        is_lab=payload.is_lab,
+        room_type=payload.room_type or ("Science Lab" if payload.is_lab else "Classroom"),
+    )
+    db.add(room)
+    db.commit()
+    db.refresh(room)
+    return room
+
+
+@app.put("/api/rooms/{room_id}", response_model=RoomSchema)
+def update_room(room_id: str, payload: RoomUpdate, db: Session = Depends(get_db)):
+    room = db.query(Room).filter(Room.room_id == room_id).first()
+    if not room:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Room '{room_id}' not found."
+        )
+    room.room_name = payload.room_name or room.room_id
+    room.room_capacity = payload.room_capacity
+    room.is_lab = payload.is_lab
+    room.room_type = payload.room_type or ("Science Lab" if payload.is_lab else "Classroom")
+    db.commit()
+    db.refresh(room)
+    return room
+
+
+@app.delete("/api/rooms/{room_id}")
+def delete_room(room_id: str, db: Session = Depends(get_db)):
+    room = db.query(Room).filter(Room.room_id == room_id).first()
+    if not room:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Room '{room_id}' not found."
+        )
+    # Delete associated assignments
+    db.query(Assignment).filter(Assignment.room_id == room_id).delete()
+    db.delete(room)
+    db.commit()
+    return {"success": True, "message": f"Room '{room_id}' deleted successfully."}
+
+
+# -----------------------------------------------------------------------------
+# 3d. Student Groups CRUD
+# -----------------------------------------------------------------------------
+@app.post("/api/groups", response_model=StudentGroupSchema, status_code=status.HTTP_201_CREATED)
+def create_group(payload: StudentGroupCreate, db: Session = Depends(get_db)):
+    if db.query(StudentGroup).filter(StudentGroup.group_id == payload.group_id).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Class with ID '{payload.group_id}' already exists."
+        )
+    group = StudentGroup(
+        group_id=payload.group_id,
+        group_name=payload.group_name,
+        student_count=payload.student_count,
+        enrolled_courses=", ".join(payload.enrolled_courses) if payload.enrolled_courses else "",
+        grade_level=payload.grade_level or "9",
+        homeroom_teacher=payload.homeroom_teacher,
+        homeroom_room_id=payload.homeroom_room_id,
+    )
+    db.add(group)
+    db.commit()
+    db.refresh(group)
+    return StudentGroupSchema(
+        group_id=group.group_id,
+        group_name=group.group_name,
+        student_count=group.student_count,
+        enrolled_courses=[c.strip() for c in group.enrolled_courses.split(",") if c.strip()],
+        grade_level=group.grade_level,
+        homeroom_teacher=group.homeroom_teacher,
+        homeroom_room_id=group.homeroom_room_id,
+    )
+
+
+@app.put("/api/groups/{group_id}", response_model=StudentGroupSchema)
+def update_group(group_id: str, payload: StudentGroupUpdate, db: Session = Depends(get_db)):
+    group = db.query(StudentGroup).filter(StudentGroup.group_id == group_id).first()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Class '{group_id}' not found."
+        )
+    group.group_name = payload.group_name
+    group.student_count = payload.student_count
+    group.enrolled_courses = ", ".join(payload.enrolled_courses) if payload.enrolled_courses else ""
+    group.grade_level = payload.grade_level or "9"
+    group.homeroom_teacher = payload.homeroom_teacher
+    group.homeroom_room_id = payload.homeroom_room_id
+    db.commit()
+    db.refresh(group)
+    return StudentGroupSchema(
+        group_id=group.group_id,
+        group_name=group.group_name,
+        student_count=group.student_count,
+        enrolled_courses=[c.strip() for c in group.enrolled_courses.split(",") if c.strip()],
+        grade_level=group.grade_level,
+        homeroom_teacher=group.homeroom_teacher,
+        homeroom_room_id=group.homeroom_room_id,
+    )
+
+
+@app.delete("/api/groups/{group_id}")
+def delete_group(group_id: str, db: Session = Depends(get_db)):
+    group = db.query(StudentGroup).filter(StudentGroup.group_id == group_id).first()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Class '{group_id}' not found."
+        )
+    # Delete associated assignments
+    db.query(Assignment).filter(Assignment.group_id == group_id).delete()
+    db.delete(group)
+    db.commit()
+    return {"success": True, "message": f"Class '{group_id}' deleted successfully."}
 
 
 # -----------------------------------------------------------------------------
@@ -616,4 +994,3 @@ from fastapi.staticfiles import StaticFiles
 dist_dir = os.path.join(os.getcwd(), "dist")
 if os.path.isdir(dist_dir):
     app.mount("/", StaticFiles(directory=dist_dir, html=True), name="static")
-

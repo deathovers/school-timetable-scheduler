@@ -1,5 +1,6 @@
 import json
 import logging
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from .database import Base, SessionLocal, engine
 from .models import (
@@ -108,6 +109,18 @@ def init_and_seed_db(force: bool = False):
     logger.info("Ensuring PostgreSQL tables exist...")
     Base.metadata.create_all(bind=engine)
 
+    # Lightweight compatibility migration for databases created before school
+    # profile fields were introduced. `create_all` never alters existing tables.
+    with engine.begin() as connection:
+        for column, definition in {
+            "principal_name": "VARCHAR(255) DEFAULT ''",
+            "coordinator_name": "VARCHAR(255) DEFAULT ''",
+            "address": "TEXT DEFAULT ''",
+            "phone": "VARCHAR(50) DEFAULT ''",
+            "email": "VARCHAR(255) DEFAULT ''",
+        }.items():
+            connection.execute(text(f"ALTER TABLE schools ADD COLUMN IF NOT EXISTS {column} {definition}"))
+
     db: Session = SessionLocal()
     try:
         teacher_count = db.query(Teacher).count()
@@ -132,6 +145,8 @@ def init_and_seed_db(force: bool = False):
             name="Oakridge International High School",
             academic_year="2025 - 2026",
             term="Term 1 (Fall Semester)",
+            principal_name="Dr. Arthur Pendelton, Ph.D.",
+            coordinator_name="Ms. Margaret Thatcher, M.Ed.",
         )
         db.add(school)
 
@@ -263,4 +278,3 @@ if __name__ == "__main__":
     import sys
     force_seed = "--force" in sys.argv
     init_and_seed_db(force=force_seed)
-

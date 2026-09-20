@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScheduleAssignment, StudentGroup, Teacher, Room } from "../types";
+import { ScheduleAssignment, StudentGroup, Teacher, Room, SchoolInfo } from "../types";
 import {
   GraduationCap,
   Users,
@@ -16,14 +16,16 @@ import {
   Coffee,
   UtensilsCrossed
 } from "lucide-react";
-import { BELL_SCHEDULE, SCHOOL_INFO } from "../data/sampleData";
+import { BELL_SCHEDULE } from "../data/sampleData";
 import { BellItem } from "./BellScheduleEditor";
+import { generateTimetablePdf } from "../utils/exportPdf";
 
 interface TimetableGridProps {
   assignments: ScheduleAssignment[];
   groups: StudentGroup[];
   teachers: Teacher[];
   rooms: Room[];
+  schoolInfo: SchoolInfo;
   bellSchedule?: BellItem[];
   onOpenBellSettings?: () => void;
 }
@@ -124,6 +126,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
   groups,
   teachers,
   rooms,
+  schoolInfo,
   bellSchedule,
   onOpenBellSettings,
 }) => {
@@ -183,8 +186,19 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
   const currentTeacher = teachers.find((t) => t.teacher_id === selectedTeacherId);
   const currentRoom = rooms.find((r) => r.room_id === selectedRoomId);
 
-  const handlePrint = () => {
-    window.print();
+  const handleExportPdf = () => {
+    generateTimetablePdf({
+      assignments,
+      groups,
+      teachers,
+      rooms,
+      schoolInfo,
+      bellSchedule,
+      filterMode,
+      selectedGroupId,
+      selectedTeacherId,
+      selectedRoomId,
+    });
   };
 
   return (
@@ -197,13 +211,13 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
               <span className="px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-bold uppercase tracking-wider">
                 Official School Timetable
               </span>
-              <span className="text-xs font-medium text-slate-500">• {SCHOOL_INFO.academicYear}</span>
+              <span className="text-xs font-medium text-slate-500">• {schoolInfo.academicYear}</span>
             </div>
             <h2 className="text-lg font-bold text-slate-900 mt-1">
-              {SCHOOL_INFO.name}
+              {schoolInfo.name}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Bell Timings: <span className="font-semibold text-slate-700">{bellSchedule ? `${bellSchedule[0]?.startTime || "08:15"} – ${bellSchedule[bellSchedule.length - 1]?.endTime || "14:00"}` : SCHOOL_INFO.bellTimings}</span> • Principal: <span className="font-semibold text-slate-700">{SCHOOL_INFO.principal}</span>
+              Bell Timings: <span className="font-semibold text-slate-700">{bellSchedule ? `${bellSchedule[0]?.startTime || "08:15"} – ${bellSchedule[bellSchedule.length - 1]?.endTime || "14:00"}` : schoolInfo.bellTimings}</span>{schoolInfo.principal && <> • Principal: <span className="font-semibold text-slate-700">{schoolInfo.principal}</span></>}
             </p>
           </div>
 
@@ -229,7 +243,7 @@ export const TimetableGrid: React.FC<TimetableGridProps> = ({
             </button>
 
             <button
-              onClick={handlePrint}
+              onClick={handleExportPdf}
               id="export-pdf-timetable-btn"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
               title="Export formatted timetable as PDF"

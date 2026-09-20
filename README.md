@@ -145,7 +145,8 @@ Uvicorn starts on `http://localhost:8000`, serving both the FastAPI REST API and
 | Method & Route | Description |
 | --- | --- |
 | `GET /api/health` | Health status, PostgreSQL connectivity, and solver engine info. |
-| `GET /api/school` | Returns current school metadata (name, academic year, term). |
+| `GET /api/school` | Returns the school profile and academic session metadata. |
+| `PUT /api/school` | Updates school name, academic year/term, principal, coordinator, and contact details. |
 | `GET /api/curriculum` | Fetches all courses, teachers, rooms, and groups from PostgreSQL. |
 | `GET /api/bell-schedule` | Retrieves current bell schedule from PostgreSQL. |
 | `PUT /api/bell-schedule` | Updates bell timings and persists them to PostgreSQL. |

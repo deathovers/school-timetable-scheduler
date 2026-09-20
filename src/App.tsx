@@ -7,7 +7,8 @@ import {
   FileSpreadsheet,
   School,
   FileDown,
-  BookOpen
+  BookOpen,
+  Settings2,
 } from "lucide-react";
 import {
   SAMPLE_COURSES,
@@ -18,11 +19,14 @@ import {
   INITIAL_SOLVED_ASSIGNMENTS,
   SCHOOL_INFO
 } from "./data/sampleData";
-import { Course, Teacher, Room, StudentGroup, TimeSlot, ScheduleAssignment } from "./types";
+import { Course, Teacher, Room, StudentGroup, TimeSlot, ScheduleAssignment, SchoolInfo } from "./types";
 import { TimetableGrid } from "./components/TimetableGrid";
 import { InputDataViewer } from "./components/InputDataViewer";
 import { BellScheduleEditor, BellItem } from "./components/BellScheduleEditor";
 import { AutoScheduleModal } from "./components/AutoScheduleModal";
+import { ToastContainer, ToastMessage } from "./components/crud/Toast";
+import { SchoolProfileModal } from "./components/crud/SchoolProfileModal";
+import { generateTimetablePdf } from "./utils/exportPdf";
 
 const DEFAULT_BELL_ITEMS: BellItem[] = [
   { id: "p1", period: 1, name: "Period 1", startTime: "08:00", endTime: "08:45", type: "academic", note: "Morning Academic Session" },
@@ -40,13 +44,24 @@ export function App() {
   const [activeTab, setActiveTab] = useState<"timetable" | "bell" | "curriculum">("timetable");
   const [assignments, setAssignments] = useState<ScheduleAssignment[]>(INITIAL_SOLVED_ASSIGNMENTS);
   const [isAutoScheduleModalOpen, setIsAutoScheduleModalOpen] = useState(false);
-  const [schoolInfo, setSchoolInfo] = useState(SCHOOL_INFO);
+  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(SCHOOL_INFO);
+  const [isSchoolProfileModalOpen, setIsSchoolProfileModalOpen] = useState(false);
   const [courses, setCourses] = useState<Course[]>(SAMPLE_COURSES);
   const [teachers, setTeachers] = useState<Teacher[]>(SAMPLE_TEACHERS);
   const [rooms, setRooms] = useState<Room[]>(SAMPLE_ROOMS);
   const [groups, setGroups] = useState<StudentGroup[]>(SAMPLE_GROUPS);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(SAMPLE_TIME_SLOTS);
   const [bellSchedule, setBellSchedule] = useState<BellItem[]>(DEFAULT_BELL_ITEMS);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = (type: "success" | "error" | "info", title: string, message?: string) => {
+    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    setToasts((prev) => [...prev, { id, type, title, message }]);
+  };
+
+  const dismissToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Load live data from PostgreSQL API on initial mount
   useEffect(() => {
@@ -65,6 +80,12 @@ export function App() {
               name: curr.school.name,
               academicYear: curr.school.academic_year,
               term: curr.school.term,
+              principal: curr.school.principal_name || "",
+              coordinator: curr.school.coordinator_name || "",
+              address: curr.school.address || "",
+              phone: curr.school.phone || "",
+              email: curr.school.email || "",
+              bellTimings: SCHOOL_INFO.bellTimings,
               session: `${curr.school.academic_year} • ${curr.school.term}`,
             });
           }
@@ -95,6 +116,46 @@ export function App() {
 
     loadInitialData();
   }, []);
+
+  const handleSaveSchoolProfile = async (updated: SchoolInfo) => {
+    try {
+      const res = await fetch("/api/school", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: updated.name,
+          academic_year: updated.academicYear,
+          term: updated.term,
+          principal_name: updated.principal,
+          coordinator_name: updated.coordinator,
+          address: updated.address,
+          phone: updated.phone,
+          email: updated.email,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Could not update school profile");
+      }
+      const school = await res.json();
+      setSchoolInfo({
+        name: school.name,
+        academicYear: school.academic_year,
+        term: school.term,
+        principal: school.principal_name || "",
+        coordinator: school.coordinator_name || "",
+        address: school.address || "",
+        phone: school.phone || "",
+        email: school.email || "",
+        bellTimings: schoolInfo.bellTimings,
+        session: `${school.academic_year} • ${school.term}`,
+      });
+      addToast("success", "School Profile Updated", "Your school details have been saved.");
+    } catch (err: any) {
+      addToast("error", "Could Not Update School Profile", err.message || "Please try again.");
+      throw err;
+    }
+  };
 
   const handleSaveBellSchedule = async (newSchedule: BellItem[]) => {
     setBellSchedule(newSchedule);
@@ -132,8 +193,286 @@ export function App() {
     setActiveTab("timetable");
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleExportPdf = () => {
+    generateTimetablePdf({
+      assignments,
+      groups,
+      teachers,
+      rooms,
+      schoolInfo,
+      bellSchedule,
+      filterMode: "master",
+      selectedGroupId: groups[0]?.group_id || "",
+      selectedTeacherId: teachers[0]?.teacher_id || "",
+      selectedRoomId: rooms[0]?.room_id || "",
+    });
+  };
+
+  // --- CRUD Handlers: Subjects & Courses ---
+  const handleAddCourse = async (data: any) => {
+    try {
+      const res = await fetch("/api/courses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to create subject");
+      }
+      const created: Course = await res.json();
+      setCourses((prev) => [...prev, created]);
+      addToast("success", "Subject Created", `Subject "${created.course_name}" (${created.course_id}) has been added.`);
+    } catch (err: any) {
+      addToast("error", "Error Adding Subject", err.message || "Failed to add subject");
+      throw err;
+    }
+  };
+
+  const handleAddCourses = async (data: any[]) => {
+    try {
+      const res = await fetch("/api/courses/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courses: data }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to create subjects");
+      }
+      const created: Course[] = await res.json();
+      setCourses((prev) => [...prev, ...created]);
+      addToast(
+        "success",
+        `${created.length} Subjects Created`,
+        `Added ${created.length} subject${created.length === 1 ? "" : "s"} to the curriculum.`
+      );
+    } catch (err: any) {
+      addToast("error", "Error Adding Subjects", err.message || "Failed to add subjects");
+      throw err;
+    }
+  };
+
+  const handleUpdateCourse = async (id: string, data: any) => {
+    try {
+      const res = await fetch(`/api/courses/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to update subject");
+      }
+      const updated: Course = await res.json();
+      setCourses((prev) => prev.map((c) => (c.course_id === id ? updated : c)));
+      addToast("success", "Subject Updated", `Subject "${updated.course_name}" has been updated.`);
+    } catch (err: any) {
+      addToast("error", "Error Updating Subject", err.message || "Failed to update subject");
+      throw err;
+    }
+  };
+
+  const handleDeleteCourse = async (id: string) => {
+    try {
+      const res = await fetch(`/api/courses/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to delete subject");
+      }
+      setCourses((prev) => prev.filter((c) => c.course_id !== id));
+      setGroups((prev) =>
+        prev.map((g) => ({
+          ...g,
+          enrolled_courses: g.enrolled_courses.filter((c) => c !== id),
+        }))
+      );
+      setAssignments((prev) => prev.filter((a) => a.course_id !== id));
+      addToast("success", "Subject Deleted", `Subject "${id}" and associated records removed.`);
+    } catch (err: any) {
+      addToast("error", "Error Deleting Subject", err.message || "Failed to delete subject");
+      throw err;
+    }
+  };
+
+  // --- CRUD Handlers: Teaching Staff ---
+  const handleAddTeacher = async (data: any) => {
+    try {
+      const res = await fetch("/api/teachers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to add faculty member");
+      }
+      const created: Teacher = await res.json();
+      setTeachers((prev) => [...prev, created]);
+      addToast("success", "Teacher Added", `Faculty member "${created.teacher_name}" added.`);
+    } catch (err: any) {
+      addToast("error", "Error Adding Teacher", err.message || "Failed to add teacher");
+      throw err;
+    }
+  };
+
+  const handleUpdateTeacher = async (id: string, data: any) => {
+    try {
+      const res = await fetch(`/api/teachers/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to update faculty member");
+      }
+      const updated: Teacher = await res.json();
+      setTeachers((prev) => prev.map((t) => (t.teacher_id === id ? updated : t)));
+      addToast("success", "Teacher Updated", `Faculty member "${updated.teacher_name}" updated.`);
+    } catch (err: any) {
+      addToast("error", "Error Updating Teacher", err.message || "Failed to update teacher");
+      throw err;
+    }
+  };
+
+  const handleDeleteTeacher = async (id: string) => {
+    try {
+      const res = await fetch(`/api/teachers/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to remove faculty member");
+      }
+      setTeachers((prev) => prev.filter((t) => t.teacher_id !== id));
+      setCourses((prev) => prev.filter((c) => c.teacher_id !== id));
+      setAssignments((prev) => prev.filter((a) => a.teacher_id !== id));
+      addToast("success", "Teacher Removed", `Faculty member "${id}" and assigned courses removed.`);
+    } catch (err: any) {
+      addToast("error", "Error Removing Teacher", err.message || "Failed to remove teacher");
+      throw err;
+    }
+  };
+
+  // --- CRUD Handlers: Classrooms & Labs ---
+  const handleAddRoom = async (data: any) => {
+    try {
+      const res = await fetch("/api/rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to add facility/room");
+      }
+      const created: Room = await res.json();
+      setRooms((prev) => [...prev, created]);
+      addToast("success", "Facility Added", `Room "${created.room_name || created.room_id}" has been created.`);
+    } catch (err: any) {
+      addToast("error", "Error Adding Room", err.message || "Failed to add room");
+      throw err;
+    }
+  };
+
+  const handleUpdateRoom = async (id: string, data: any) => {
+    try {
+      const res = await fetch(`/api/rooms/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to update room");
+      }
+      const updated: Room = await res.json();
+      setRooms((prev) => prev.map((r) => (r.room_id === id ? updated : r)));
+      addToast("success", "Facility Updated", `Room "${updated.room_name || updated.room_id}" has been updated.`);
+    } catch (err: any) {
+      addToast("error", "Error Updating Room", err.message || "Failed to update room");
+      throw err;
+    }
+  };
+
+  const handleDeleteRoom = async (id: string) => {
+    try {
+      const res = await fetch(`/api/rooms/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to delete room");
+      }
+      setRooms((prev) => prev.filter((r) => r.room_id !== id));
+      setAssignments((prev) => prev.filter((a) => a.room_id !== id));
+      addToast("success", "Facility Deleted", `Room "${id}" removed.`);
+    } catch (err: any) {
+      addToast("error", "Error Deleting Room", err.message || "Failed to delete room");
+      throw err;
+    }
+  };
+
+  // --- CRUD Handlers: Student Groups (Classes) ---
+  const handleAddGroup = async (data: any) => {
+    try {
+      const res = await fetch("/api/groups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to add class cohort");
+      }
+      const created: StudentGroup = await res.json();
+      setGroups((prev) => [...prev, created]);
+      addToast("success", "Class Created", `Class "${created.group_name}" has been added.`);
+    } catch (err: any) {
+      addToast("error", "Error Adding Class", err.message || "Failed to add class");
+      throw err;
+    }
+  };
+
+  const handleUpdateGroup = async (id: string, data: any) => {
+    try {
+      const res = await fetch(`/api/groups/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to update class");
+      }
+      const updated: StudentGroup = await res.json();
+      setGroups((prev) => prev.map((g) => (g.group_id === id ? updated : g)));
+      addToast("success", "Class Updated", `Class "${updated.group_name}" has been updated.`);
+    } catch (err: any) {
+      addToast("error", "Error Updating Class", err.message || "Failed to update class");
+      throw err;
+    }
+  };
+
+  const handleDeleteGroup = async (id: string) => {
+    try {
+      const res = await fetch(`/api/groups/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to delete class");
+      }
+      setGroups((prev) => prev.filter((g) => g.group_id !== id));
+      setAssignments((prev) => prev.filter((a) => a.group_id !== id));
+      addToast("success", "Class Deleted", `Class "${id}" removed.`);
+    } catch (err: any) {
+      addToast("error", "Error Deleting Class", err.message || "Failed to delete class");
+      throw err;
+    }
   };
 
   return (
@@ -167,7 +506,7 @@ export function App() {
               {/* Export PDF Button */}
               <button
                 id="header-export-pdf-btn"
-                onClick={handlePrint}
+                onClick={handleExportPdf}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors shadow-2xs cursor-pointer"
                 title="Export timetable as PDF"
               >
@@ -186,6 +525,16 @@ export function App() {
                 <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
                 <span className="hidden sm:inline">Export Excel</span>
               </a>
+
+              <button
+                id="header-school-profile-btn"
+                onClick={() => setIsSchoolProfileModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors shadow-2xs cursor-pointer"
+                title="Edit school profile"
+              >
+                <Settings2 className="w-4 h-4 text-indigo-600" />
+                <span className="hidden md:inline">School Profile</span>
+              </button>
 
               {/* Schedule Generator */}
               <button
@@ -253,6 +602,7 @@ export function App() {
             groups={groups}
             teachers={teachers}
             rooms={rooms}
+            schoolInfo={schoolInfo}
             bellSchedule={bellSchedule}
             onOpenBellSettings={() => setActiveTab("bell")}
           />
@@ -275,9 +625,29 @@ export function App() {
             rooms={rooms}
             groups={groups}
             timeSlots={timeSlots}
+            onAddCourse={handleAddCourse}
+            onAddCourses={handleAddCourses}
+            onUpdateCourse={handleUpdateCourse}
+            onDeleteCourse={handleDeleteCourse}
+            onAddTeacher={handleAddTeacher}
+            onUpdateTeacher={handleUpdateTeacher}
+            onDeleteTeacher={handleDeleteTeacher}
+            onAddRoom={handleAddRoom}
+            onUpdateRoom={handleUpdateRoom}
+            onDeleteRoom={handleDeleteRoom}
+            onAddGroup={handleAddGroup}
+            onUpdateGroup={handleUpdateGroup}
+            onDeleteGroup={handleDeleteGroup}
           />
         )}
       </main>
+
+      <SchoolProfileModal
+        isOpen={isSchoolProfileModalOpen}
+        schoolInfo={schoolInfo}
+        onSave={handleSaveSchoolProfile}
+        onClose={() => setIsSchoolProfileModalOpen(false)}
+      />
 
       {/* School Footer */}
       <footer className="bg-white border-t border-slate-200/80 py-5 px-4 sm:px-6 lg:px-8 mt-12">
@@ -292,10 +662,10 @@ export function App() {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={handlePrint}
+              onClick={handleExportPdf}
               className="font-semibold text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer"
             >
-              Print Timetable
+              Export PDF
             </button>
             <span className="text-slate-300">•</span>
             <a
@@ -312,9 +682,13 @@ export function App() {
       {/* Auto-Schedule Generator Modal */}
       <AutoScheduleModal
         isOpen={isAutoScheduleModalOpen}
+        schoolInfo={schoolInfo}
         onClose={() => setIsAutoScheduleModalOpen(false)}
         onSolveComplete={handleSolveComplete}
       />
+
+      {/* Toast Feedback Notification Container */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 }

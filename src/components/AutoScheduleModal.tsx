@@ -10,16 +10,18 @@ import {
   School,
   FileSpreadsheet
 } from "lucide-react";
-import { ScheduleAssignment } from "../types";
+import { ScheduleAssignment, SchoolInfo } from "../types";
 
 interface AutoScheduleModalProps {
   isOpen: boolean;
+  schoolInfo: SchoolInfo;
   onClose: () => void;
   onSolveComplete: (assignments: ScheduleAssignment[]) => void;
 }
 
 export const AutoScheduleModal: React.FC<AutoScheduleModalProps> = ({
   isOpen,
+  schoolInfo,
   onClose,
   onSolveComplete,
 }) => {
@@ -104,7 +106,7 @@ export const AutoScheduleModal: React.FC<AutoScheduleModalProps> = ({
                 Generate School Timetable
               </h2>
               <p className="text-xs text-slate-500">
-                Oakridge International High School • Academic Schedule Generator
+                {schoolInfo.name} • {schoolInfo.academicYear} Schedule Generator
               </p>
             </div>
           </div>
